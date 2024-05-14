@@ -29,7 +29,7 @@ env:
 
 jobs:
 
-  build:
+  build-test:
     runs-on: windows-latest # For Linux, use ubuntu-latest
     environment: dev
     steps:
@@ -41,61 +41,26 @@ jobs:
       uses: azure/login@v1
       with:
        creds: ${{ secrets.AZURE_RBAC_CREDENTIALS }} # set up AZURE_RBAC_CREDENTIALS secrets in your repository
-
+    - uses: microsoft/variable-substitution@v1 
+      with:
+         files: '*appsettings.json'
+      env:
+         TEST: ${{vars.TEST}}
     - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
   Package-test:
     runs-on: windows-latest # For Linux, use ubuntu-latest
-    needs: [ build]
+    needs: [ build-test]
     environment: dev
-    steps:
-    - uses: microsoft/variable-substitution@v1 
-      with:
-         files: '*appsettings.json'
-      env:
-         TEST: ${{vars.TEST}}
-         
+    steps:   
     - name: 'Resolve Project Dependencies Using Dotnet'
       shell: pwsh # For Linux, use bash
       run: |
         pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
         dotnet build --configuration Release --output ./output/Test
-        popd
-        
-
-    - name: 'Run Azure Functions Action'
-      uses: Azure/functions-action@v1
-      id: fa
-      with:
-        app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-  Package-prod:
-    runs-on: windows-latest # For Linux, use ubuntu-latest
-    needs: [ build,Package-test]
-    environment: prod
-    steps:
-    - uses: microsoft/variable-substitution@v1 
-      with:
-         files: '*appsettings.json'
-      env:
-         TEST: ${{vars.TEST}}
-         
-    - name: 'Resolve Project Dependencies Using Dotnet'
-      shell: pwsh # For Linux, use bash
-      run: |
-        pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-        dotnet build --configuration Release --output ./output/Prod
-        popd
-        
-
-    - name: 'Run Azure Functions Action'
-      uses: Azure/functions-action@v1
-      id: fa
-      with:
-        app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-        package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'  
-        
+        popd        
   deploy-test:
     runs-on: windows-latest # For Linux, use ubuntu-latest
     needs: [ build,Package-test,Package-prod]
@@ -109,19 +74,7 @@ jobs:
       id: fa
       with:
         app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-        package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output/Test'    
-        
-  deploy-prod:
-    runs-on: windows-latest # For Linux, use ubuntu-latest
-    needs: [ build,Package-test,Package-prod,deploy-test]
-    environment: Prod
-    steps:
-    - name: 'Checkout GitHub Action'
-      uses: actions/checkout@v4         
-   
-    - name: 'Run Azure Functions Action'
-      uses: Azure/functions-action@v1
-      id: fa
-      with:
+        package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output/Test'           
+ 
         app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
         package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output/Prod'        
