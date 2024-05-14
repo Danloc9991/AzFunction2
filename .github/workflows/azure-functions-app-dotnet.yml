@@ -45,18 +45,20 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
-
+        
+    - uses: microsoft/variable-substitution@v1 
+      with:
+         files: '*appsettings.json'
+      env:
+         TEST: TESTINGFROMGH
+         
     - name: 'Resolve Project Dependencies Using Dotnet'
       shell: pwsh # For Linux, use bash
       run: |
         pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
         dotnet build --configuration Release --output ./output
         popd
-    - uses: microsoft/variable-substitution@v1 
-      with:
-         files: '*appsettings.json'
-      env:
-         TEST: TESTINGFROMGH    
+        
 
     - name: 'Run Azure Functions Action'
       uses: Azure/functions-action@v1
