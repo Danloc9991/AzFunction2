@@ -59,7 +59,7 @@ jobs:
       shell: pwsh # For Linux, use bash
       run: |
         pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-        dotnet build --configuration Release --output ./output/Test
+        dotnet build --configuration Release --output ./output
         popd        
   deploy-test:
     runs-on: windows-latest # For Linux, use ubuntu-latest
@@ -74,6 +74,6 @@ jobs:
       id: fa
       with:
         app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-        package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output/Test'           
+        package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'           
  
           
