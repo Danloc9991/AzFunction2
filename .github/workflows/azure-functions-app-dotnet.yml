@@ -69,7 +69,7 @@ jobs:
   build-and-deploy-prod:
     runs-on: windows-latest # For Linux, use ubuntu-latest
     needs: [ build-and-deploy-test]
-    environment: dev
+    environment: Prod
     steps:
     - name: 'Checkout GitHub Action'
       uses: actions/checkout@v4
