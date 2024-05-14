@@ -48,6 +48,7 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
   Package-test:
     runs-on: windows-latest # For Linux, use ubuntu-latest
+    needs: [ build]
     environment: dev
     steps:
     - uses: microsoft/variable-substitution@v1 
@@ -71,6 +72,7 @@ jobs:
         app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
   Package-prod:
     runs-on: windows-latest # For Linux, use ubuntu-latest
+    needs: [ build,Package-test]
     environment: prod
     steps:
     - uses: microsoft/variable-substitution@v1 
