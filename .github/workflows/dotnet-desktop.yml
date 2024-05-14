@@ -63,7 +63,7 @@ jobs:
         popd        
   deploy-test:
     runs-on: windows-latest # For Linux, use ubuntu-latest
-    needs: [ build,Package-test,Package-prod]
+    needs: [ build-test,Package-test]
     environment: dev
     steps:
     - name: 'Checkout GitHub Action'
