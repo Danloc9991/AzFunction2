@@ -68,6 +68,7 @@ jobs:
         package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
   build-and-deploy-prod:
     runs-on: windows-latest # For Linux, use ubuntu-latest
+    needs: [ build-and-deploy-test]
     environment: dev
     steps:
     - name: 'Checkout GitHub Action'
